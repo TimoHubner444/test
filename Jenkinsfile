@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        COMPOSE_FILE = "compose.yml"
+        COMPOSE_FILE = "infra/compose.yml"
     }
 
     stages {
