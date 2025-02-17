@@ -30,15 +30,6 @@ pipeline {
             }
         }
 
-        stage('Wait for MySQL') {
-            steps {
-                script {
-                    // Wacht totdat MySQL beschikbaar is voor verbinding
-                    sh 'docker compose -f $COMPOSE_FILE exec backend wait-for-it mysql:3306 --timeout=30'
-                }
-            }
-        }
-     
         stage('Install Dependencies') {
             parallel {
                 stage('Install Backend Dependencies') {
