@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git https://github.com/TimoHubner444/test.git  // Pas dit aan naar je eigen repo
+                git 'https://github.com/TimoHubner444/test.git'  // Pas dit aan naar je eigen repo
             }
         }
 
