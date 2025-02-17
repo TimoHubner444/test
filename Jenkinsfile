@@ -2,92 +2,51 @@ pipeline {
     agent any
 
     environment {
-        COMPOSE_FILE = "infra/compose.yml"
+        // Pad naar je docker-compose.yml bestand (meestal in de root van je repository)
+        COMPOSE_FILE = 'infra/compose.yml'
     }
 
     stages {
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/TimoHubner444/test.git'
+                // Checkout de code van je repository
+                checkout 'https://github.com/TimoHubner444/test.git'
             }
         }
 
-        stage('Start Services') {
-            steps {
-                script {
-                    // Start de services met docker-compose
-                    sh 'docker compose -f $COMPOSE_FILE up -d'
-                }
-            }
-        }
-
-        stage('Wait for Services to be Ready') {
+        stage('Set Up Docker Compose') {
             steps {
                 script {
-                    // Wacht een korte tijd zodat de containers volledig kunnen starten
-                    sleep 30
+                    // Zorg ervoor dat Docker Compose is geïnstalleerd en up-to-date is
+                    sh 'docker compose --version'
                 }
             }
         }
 
-        stage('Install Dependencies') {
-            parallel {
-                stage('Install Backend Dependencies') {
-                    steps {
-                        script {
-                            // Installeer backend dependencies in een tijdelijke container
-                            sh 'docker compose -f $COMPOSE_FILE run backend npm install'
-                        }
-                    }
-                }
-
-                stage('Install Frontend Dependencies') {
-                    steps {
-                        script {
-                            // Installeer frontend dependencies in een tijdelijke container
-                            sh 'docker compose -f $COMPOSE_FILE run frontend npm install'
-                        }
-                    }
+        stage('Start Services with Docker Compose') {
+            steps {
+                script {
+                    // Start de services gedefinieerd in docker-compose.yml
+                    sh 'docker compose -f ${COMPOSE_FILE} up -d' // Start in detached mode
                 }
             }
         }
 
         stage('Run Tests') {
-            parallel {
-                stage('Backend Tests') {
-                    steps {
-                        script {
-                            // Voer de backend tests uit
-                            sh 'docker compose -f $COMPOSE_FILE exec backend npm test -- --json --outputFile=test-results.json'
-                        }
-                    }
-                }
-
-                stage('Frontend Tests') {
-                    steps {
-                        script {
-                            // Voer de frontend tests uit
-                            sh 'docker compose -f $COMPOSE_FILE exec frontend npm test -- --json --outputFile=test-results.json'
-                        }
-                    }
+            steps {
+                script {
+                    // Voer de tests uit in de 'app' container, die is gedefinieerd in docker-compose.yml
+                    // Als de tests al in de 'command' in je Compose file zitten, kan deze stap mogelijk worden overgeslagen
+                    sh 'docker compose -f ${COMPOSE_FILE} exec -T app npm test'  // Pas dit aan naar je testcommando
                 }
             }
         }
 
-        stage('Archive Test Results') {
+        stage('Tear Down Docker Compose') {
             steps {
                 script {
-                    // Archiveer testresultaten
-                    archiveArtifacts artifacts: '**/test-results.json', allowEmptyArchive: true
-                }
-            }
-        }
-
-        stage('Cleanup') {
-            steps {
-                script {
-                    // Stop de Docker Compose services
-                    sh 'docker compose -f $COMPOSE_FILE down'
+                    // Stop en verwijder de containers, netwerken, enz. gedefinieerd in docker-compose.yml
+                    sh 'docker compose -f ${COMPOSE_FILE} down'
                 }
             }
         }
@@ -95,12 +54,8 @@ pipeline {
 
     post {
         always {
-            // Archiveren van artefacten
-            archiveArtifacts artifacts: '**/test-results.json', allowEmptyArchive: true
-        }
-        failure {
-            // Loggen bij mislukte builds
-            echo 'De build is mislukt! Controleer de testresultaten voor details.'
+            // Extra schoonmaakwerk kan hier worden gedaan, zoals het verwijderen van ongebruikte Docker-images
+            sh 'docker system prune -f'
         }
     }
 }
