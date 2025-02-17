@@ -21,11 +21,20 @@ pipeline {
             }
         }
 
+        stage('Wait for Services to be Ready') {
+            steps {
+                script {
+                    // Wacht een korte tijd zodat de containers volledig kunnen starten
+                    sleep 30
+                }
+            }
+        }
+
         stage('Wait for MySQL') {
             steps {
                 script {
-                    // Wacht totdat MySQL klaar is
-                    sleep 20
+                    // Wacht totdat MySQL beschikbaar is voor verbinding
+                    sh 'docker compose -f $COMPOSE_FILE exec backend wait-for-it mysql:3306 --timeout=30'
                 }
             }
         }
@@ -35,8 +44,8 @@ pipeline {
                 stage('Install Backend Dependencies') {
                     steps {
                         script {
-                            // Installeer backend dependencies in de backend container
-                            sh 'docker compose -f $COMPOSE_FILE exec backend npm install'
+                            // Installeer backend dependencies in een tijdelijke container
+                            sh 'docker compose -f $COMPOSE_FILE run backend npm install'
                         }
                     }
                 }
@@ -44,8 +53,8 @@ pipeline {
                 stage('Install Frontend Dependencies') {
                     steps {
                         script {
-                            // Installeer frontend dependencies in de frontend container
-                            sh 'docker compose -f $COMPOSE_FILE exec frontend npm install'
+                            // Installeer frontend dependencies in een tijdelijke container
+                            sh 'docker compose -f $COMPOSE_FILE run frontend npm install'
                         }
                     }
                 }
