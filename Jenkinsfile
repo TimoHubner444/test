@@ -6,14 +6,16 @@ pipeline {
         COMPOSE_FILE = 'infra/compose.yml'
     }
 
-    stages {
+    s stages {
         stage('Checkout') {
             steps {
-                // Checkout de code van je repository
-                git url: 'https://github.com/TimoHubner444/test.git', branch: 'main'
+                script {
+                    // Checkout the main branch from your Git repository
+                    git branch: 'main', url: 'https://github.com/your-username/your-repository.git'
+                }
             }
         }
-    }    
+    }
 }
 
 
