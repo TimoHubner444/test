@@ -22,18 +22,6 @@ services:
         - APIURL=http://localhost:8090
     ports:
       - 8100:80
-    depends_on:
-      - node_frontend
-      - mysql
-
-  node_frontend:
-    image: node:16-alpine
-    working_dir: /usr/src/app
-    volumes:
-      - ../frontend:/usr/src/app
-    command: ["npm", "install"]
-    environment:
-      APIURL: "http://localhost:8090"
 
   mysql:
     image: mysql:latest
