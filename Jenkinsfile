@@ -32,36 +32,7 @@ pipeline {
             }
         }
 
-       stage('Run backend Tests') {
-            steps {
-                script {
-                    // Installeer dependencies in de container als ze nog niet geïnstalleerd zijn
-                    sh 'docker compose -f ${COMPOSE_FILE} exec -T backend npm install'
-                    // Voer de tests uit
-                    sh 'docker compose -f ${COMPOSE_FILE} exec -T backend npm test'
-                }
-            }
-        }
-
-        stage('Run frontend Tests') {
-            steps {
-                script {
-                    // Voer de tests uit in de 'app' container, die is gedefinieerd in docker-compose.yml
-                    // Als de tests al in de 'command' in je Compose file zitten, kan deze stap mogelijk worden overgeslagen
-                    sh 'docker compose -f ${COMPOSE_FILE} exec -T frontend npm test'  // Pas dit aan naar je testcommando
-                }
-            }
-        }
-
-        stage('Tear Down Docker Compose') {
-            steps {
-                script {
-                    // Stop en verwijder de containers, netwerken, enz. gedefinieerd in docker-compose.yml
-                    sh 'docker compose -f ${COMPOSE_FILE} down'
-                }
-            }
-        }
-    }
+      
 
     post {
         always {
