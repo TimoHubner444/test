@@ -3,8 +3,8 @@ pipeline {
     stages {
         stage('Checkout Git Repo') {
             steps {
-                // Git repository uitchecken
-                git 'https://github.com/TimoHubner444/test.git'
+                // Specificeer de branch hier
+                git branch: 'main', url: 'https://github.com/TimoHubner444/test.git'
             }
         }
         stage('Hello World') {
