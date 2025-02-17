@@ -15,7 +15,8 @@ pipeline {
         stage('Start Services') {
             steps {
                 script {
-                    sh 'docker-compose -f $COMPOSE_FILE up -d'
+                    // Start de services via Docker Compose plugin
+                    dockerCompose up -d
                 }
             }
         }
@@ -24,7 +25,7 @@ pipeline {
             steps {
                 script {
                     // Wacht totdat MySQL klaar is (optioneel, afhankelijk van healthcheck)
-                    sh 'sleep 20'
+                    sleep 20
                 }
             }
         }
@@ -35,7 +36,7 @@ pipeline {
                     steps {
                         script {
                             // Backend tests uitvoeren met Maven
-                            sh 'docker-compose -f $COMPOSE_FILE exec -T backend mvn test | tee target/test-results.log'
+                            sh 'docker-compose exec -T backend mvn test | tee target/test-results.log'
                         }
                     }
                 }
@@ -44,7 +45,7 @@ pipeline {
                     steps {
                         script {
                             // Frontend tests uitvoeren met npm
-                            sh 'docker-compose -f $COMPOSE_FILE exec -T frontend npm test -- --json --outputFile=test-results.json'
+                            sh 'docker-compose exec -T frontend npm test -- --json --outputFile=test-results.json'
                         }
                     }
                 }
@@ -63,7 +64,8 @@ pipeline {
         stage('Cleanup') {
             steps {
                 script {
-                    sh 'docker-compose -f $COMPOSE_FILE down'
+                    // Stop de Docker Compose services
+                    dockerCompose down
                 }
             }
         }
