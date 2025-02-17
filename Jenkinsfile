@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/TimoHubner444/test.git'  // Pas dit aan naar je eigen repo
+                git branch: 'main', url: 'https://github.com/TimoHubner444/test.git'
             }
         }
 
@@ -24,18 +24,40 @@ pipeline {
         stage('Wait for MySQL') {
             steps {
                 script {
-                    // Wacht totdat MySQL klaar is (optioneel, afhankelijk van healthcheck)
+                    // Wacht totdat MySQL klaar is
                     sleep 20
                 }
             }
         }
      
+        stage('Install Dependencies') {
+            parallel {
+                stage('Install Backend Dependencies') {
+                    steps {
+                        script {
+                            // Installeer backend dependencies in de backend container
+                            sh 'docker compose -f $COMPOSE_FILE exec -T backend npm install'
+                        }
+                    }
+                }
+
+                stage('Install Frontend Dependencies') {
+                    steps {
+                        script {
+                            // Installeer frontend dependencies in de frontend container
+                            sh 'docker compose -f $COMPOSE_FILE exec -T frontend npm install'
+                        }
+                    }
+                }
+            }
+        }
+
         stage('Run Tests') {
             parallel {
                 stage('Backend Tests') {
                     steps {
                         script {
-                            // Backend tests uitvoeren met Maven binnen de container
+                            // Voer de backend tests uit
                             sh 'docker compose -f $COMPOSE_FILE exec -T backend npm test -- --json --outputFile=test-results.json'
                         }
                     }
@@ -44,7 +66,7 @@ pipeline {
                 stage('Frontend Tests') {
                     steps {
                         script {
-                            // Frontend tests uitvoeren met npm binnen de container
+                            // Voer de frontend tests uit
                             sh 'docker compose -f $COMPOSE_FILE exec -T frontend npm test -- --json --outputFile=test-results.json'
                         }
                     }
@@ -55,8 +77,8 @@ pipeline {
         stage('Archive Test Results') {
             steps {
                 script {
-                    // Archiveer testresultaten (logbestanden)
-                    archiveArtifacts artifacts: '**/target/test-results.log, **/test-results.json', allowEmptyArchive: true
+                    // Archiveer testresultaten
+                    archiveArtifacts artifacts: '**/test-results.json', allowEmptyArchive: true
                 }
             }
         }
@@ -73,11 +95,11 @@ pipeline {
 
     post {
         always {
-            // Zorg ervoor dat je artefacten en logs altijd worden opgeslagen
-            archiveArtifacts artifacts: '**/target/test-results.log, **/test-results.json', allowEmptyArchive: true
+            // Archiveren van artefacten
+            archiveArtifacts artifacts: '**/test-results.json', allowEmptyArchive: true
         }
         failure {
-            // Fouten loggen bij mislukte builds
+            // Loggen bij mislukte builds
             echo 'De build is mislukt! Controleer de testresultaten voor details.'
         }
     }
