@@ -29,25 +29,14 @@ pipeline {
                 }
             }
         }
-        stage('Check Dependencies') {
-            steps {
-                script {
-                    // Check Maven installation in backend container
-                    sh "docker compose -f ${env.COMPOSE_FILE} exec backend mvn -v"
-                    // Check npm installation in frontend container
-                    sh "docker compose -f ${env.COMPOSE_FILE} exec frontend npm -v"
-                }
-            }
-        }
-
-
+     
         stage('Run Tests') {
             parallel {
                 stage('Backend Tests') {
                     steps {
                         script {
                             // Backend tests uitvoeren met Maven binnen de container
-                            sh 'docker compose -f $COMPOSE_FILE exec -T backend mvn test | tee target/test-results.log'
+                            sh 'docker compose -f $COMPOSE_FILE exec -T backend npm test -- --json --outputFile=test-results.json'
                         }
                     }
                 }
