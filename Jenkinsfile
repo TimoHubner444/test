@@ -36,7 +36,7 @@ pipeline {
                     steps {
                         script {
                             // Installeer backend dependencies in de backend container
-                            sh 'docker compose -f $COMPOSE_FILE exec -T backend npm install'
+                            sh 'docker compose -f $COMPOSE_FILE exec backend npm install'
                         }
                     }
                 }
@@ -45,7 +45,7 @@ pipeline {
                     steps {
                         script {
                             // Installeer frontend dependencies in de frontend container
-                            sh 'docker compose -f $COMPOSE_FILE exec -T frontend npm install'
+                            sh 'docker compose -f $COMPOSE_FILE exec frontend npm install'
                         }
                     }
                 }
@@ -58,7 +58,7 @@ pipeline {
                     steps {
                         script {
                             // Voer de backend tests uit
-                            sh 'docker compose -f $COMPOSE_FILE exec -T backend npm test -- --json --outputFile=test-results.json'
+                            sh 'docker compose -f $COMPOSE_FILE exec backend npm test -- --json --outputFile=test-results.json'
                         }
                     }
                 }
@@ -67,7 +67,7 @@ pipeline {
                     steps {
                         script {
                             // Voer de frontend tests uit
-                            sh 'docker compose -f $COMPOSE_FILE exec -T frontend npm test -- --json --outputFile=test-results.json'
+                            sh 'docker compose -f $COMPOSE_FILE exec frontend npm test -- --json --outputFile=test-results.json'
                         }
                     }
                 }
