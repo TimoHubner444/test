@@ -4,11 +4,24 @@ pipeline {
     environment {
         COMPOSE_FILE = "compose.yml"
     }
-
+    
     stages {
+
+         stage('Hello') {
+            steps {
+                echo 'Hello, World!'
+            }
+        }
+                
         stage('Checkout Code') {
             steps {
                 git 'https://github.com/TimoHubner444/test.git'  // Pas dit aan naar je eigen repo
+            }
+        }
+
+         stage('Hello') {
+            steps {
+                echo 'Hello, World!'
             }
         }
 
@@ -20,6 +33,12 @@ pipeline {
             }
         }
 
+         stage('Hello') {
+            steps {
+                echo 'Hello, World!'
+            }
+        }
+        
         stage('Wait for MySQL') {
             steps {
                 script {
