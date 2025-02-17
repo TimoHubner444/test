@@ -32,12 +32,21 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
+        stage('Run backend Tests') {
             steps {
                 script {
                     // Voer de tests uit in de 'app' container, die is gedefinieerd in docker-compose.yml
                     // Als de tests al in de 'command' in je Compose file zitten, kan deze stap mogelijk worden overgeslagen
-                    sh 'docker compose -f ${COMPOSE_FILE} exec -T app npm test'  // Pas dit aan naar je testcommando
+                    sh 'docker compose -f ${COMPOSE_FILE} exec -T backend npm test'  // Pas dit aan naar je testcommando
+                }
+            }
+        }
+        stage('Run frontend Tests') {
+            steps {
+                script {
+                    // Voer de tests uit in de 'app' container, die is gedefinieerd in docker-compose.yml
+                    // Als de tests al in de 'command' in je Compose file zitten, kan deze stap mogelijk worden overgeslagen
+                    sh 'docker compose -f ${COMPOSE_FILE} exec -T frontend npm test'  // Pas dit aan naar je testcommando
                 }
             }
         }
