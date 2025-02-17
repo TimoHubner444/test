@@ -10,7 +10,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Checkout de code van je repository
-                checkout 'https://github.com/TimoHubner444/test.git'
+                git url: 'https://github.com/TimoHubner444/test.git', branch: 'main'
             }
         }
 
