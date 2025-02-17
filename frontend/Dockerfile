@@ -9,7 +9,7 @@ COPY . .
 RUN echo "export const environment = {production: true, apiurl: '${APIURL}'};" > /usr/src/app/src/environments/environment.prod.ts
 
 RUN npm install
-RUN node -v && npm -v
+
 
 RUN npm run build --configuration=production
 
