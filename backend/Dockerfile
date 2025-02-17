@@ -3,6 +3,6 @@ WORKDIR /usr/src/app
 
 COPY . .
 RUN npm install
-RUN mvn clean install
 
-CMD ["npm","start","mvn"]
+
+CMD ["npm","start"]
