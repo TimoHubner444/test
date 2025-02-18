@@ -25,7 +25,7 @@ pipeline {
           stage('Install Dependencies') {
             steps {
                 script {
-                    sh 'docker compose exec -T app npm install'
+                    sh 'docker compose exec -T infra-frontend-1 npm install'
                 }
             }
         }
@@ -33,14 +33,14 @@ pipeline {
         stage('Unit Tests') {
             steps {
                 script {
-                    sh 'docker compose exec -T app npm run test -- --watch=false --browsers=ChromeHeadless'
+                    sh 'docker compose exec -T infra-frontend-1 npm run test -- --watch=false --browsers=ChromeHeadless'
                 }
             }
         }
         stage('E2E Tests') {
             steps {
                 script {
-                    sh 'docker compose exec -T app npm run e2e'
+                    sh 'docker compose exec -T infra-frontend-1 npm run e2e'
                 }
             }
         }
