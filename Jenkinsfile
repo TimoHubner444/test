@@ -15,6 +15,13 @@ pipeline {
                 }
             }
         }
+          stage('Start Services') {
+            steps {
+                script {
+                    sh 'docker compose -f infra/compose.yml up -d'
+                }
+            }
+        }
     }
 }
 
