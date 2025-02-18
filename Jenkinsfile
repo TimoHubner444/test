@@ -18,7 +18,7 @@ pipeline {
             stage('Insalling dependecies') {
               steps{
                   nodejs('TINnode-devops'){
-                        sh ' nmp install' 
+                        sh ' npm install' 
                         sh' npm install -g @angular/cli'
                         
                     }
