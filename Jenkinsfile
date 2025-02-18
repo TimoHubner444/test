@@ -12,7 +12,7 @@ pipeline {
                     script {
                         // Checkout the main branch from your Git repository
                         git branch: 'main', url: 'https://github.com/TimoHubner444/test.git'
-                        sh 'cd frontend'
+                        
                     }
                 }
             }
