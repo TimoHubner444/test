@@ -6,7 +6,7 @@ pipeline {
         COMPOSE_FILE = 'infra/compose.yml'
     }
 
-    s stages {
+      stages {
         stage('Checkout') {
             steps {
                 script {
