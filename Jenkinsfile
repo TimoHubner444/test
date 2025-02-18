@@ -12,6 +12,7 @@ pipeline {
                     script {
                         // Checkout the main branch from your Git repository
                         git branch: 'main', url: 'https://github.com/TimoHubner444/test.git'
+                        sh 'cd frontend'
                     }
                 }
             }
@@ -26,7 +27,7 @@ pipeline {
             }
             stage('Run unit and e2e tests') {
                 steps{
-                    sh 'cd frontend'
+                    
                     sh 'ng test' 
                     sh 'ng add playwright-ng-schematics'
                     sh ' ng e2e'
