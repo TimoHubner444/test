@@ -22,6 +22,28 @@ pipeline {
                 }
             }
         }
+          stage('Install Dependencies') {
+            steps {
+                script {
+                    sh 'docker-compose exec -T app npm install'
+                }
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                script {
+                    sh 'docker-compose exec -T app npm run test -- --watch=false --browsers=ChromeHeadless'
+                }
+            }
+        }
+        stage('E2E Tests') {
+            steps {
+                script {
+                    sh 'docker-compose exec -T app npm run e2e'
+                }
+            }
+        }
     }
 }
 
