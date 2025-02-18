@@ -23,6 +23,7 @@ pipeline {
                         
                     }
                   }
+            }
             stage('Run unit and e2e tests') {
                 steps{
                     sh 'cd frontend'
@@ -34,6 +35,6 @@ pipeline {
         
         }
     }
-}
+
 
 
