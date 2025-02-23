@@ -5,7 +5,7 @@ pipeline {
         DOCKER_IMAGE = 'frontend/Dockerfile'
     }
     tools {
-        nodejs test-node" 
+        nodejs "test-node" 
     }
 
     stages {
