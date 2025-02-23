@@ -4,6 +4,9 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'frontend/Dockerfile'
     }
+    tools {
+        nodejs test-node" 
+    }
 
     stages {
         stage('Checkout') {
