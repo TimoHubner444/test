@@ -16,6 +16,7 @@ pipeline {
             steps {
                 // Navigeer naar de frontend directory voordat je npm install uitvoert
                 dir('frontend') {
+                    sh 'npm install @angular/cli --save-dev'
                     sh 'npm install'
                 }
             }
