@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = 'frontend/Dockerfile'
-        AWS_ECR_REPO = 'aws-account-id.dkr.ecr.region.amazonaws.com/my-repo'
+        
     }
 
     stages {
@@ -12,52 +12,39 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/TimoHubner444/test.git'
             }
         }
-
-        stage('Build Docker Image') {
+        stage('Install Dependencies') {
             steps {
-                script {
-                    docker.build(DOCKER_IMAGE)
-                }
+                // Installeer de Node.js dependencies
+                sh 'npm install'
             }
         }
 
-        stage('Run Tests') {
+        stage('Build') {
             steps {
-                script {
-                    docker.image(DOCKER_IMAGE).inside {
-                        sh ''
-                    }
-                }
+                
+                sh 'ng build --prod'
             }
         }
 
-        stage('Deploy to AWS') {
-            when {
-                branch 'main'
-            }
+        stage('Unit Tests') {
             steps {
-                script {
-                    // Log in to AWS ECR
-                    sh 'aws ecr get-login-password --region region | docker login --username AWS --password-stdin $AWS_ECR_REPO'
-                    
-                    // Push the Docker image to ECR
-                    docker.image(DOCKER_IMAGE).push('latest')
-                    
-                    // Trigger AWS CodeDeploy or ECS deployment (if applicable)
-                    sh 'aws deploy push --application-name my-app --s3-location s3://my-bucket/my-app.zip'
-                }
+                
+                sh 'ng test --watch=false --browsers=ChromeHeadless'
             }
         }
+
+        stage('End-to-End Tests') {
+            steps {
+                // Voer de end-to-end tests uit met Protractor (of een andere tool die je gebruikt)
+                sh 'ng e2e --prod'
+            }
+        }
+
     }
 
     post {
         always {
             cleanWs()
-        }
-        failure {
-            mail to: 'devops@company.com',
-                 subject: "Build Failed: ${currentBuild.fullDisplayName}",
-                 body: "Something went wrong with the Jenkins build. Check Jenkins logs for more info."
-        }
+        }  
     }
 }
