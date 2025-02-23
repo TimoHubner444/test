@@ -15,8 +15,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 dir('frontend') {
-                    // Installeer de Angular CLI globaal
-                    sh 'npm install -g @angular/cli'
+                    sh 'npm install -g @angular/cli@17'
                     // Installeer de overige dependencies in de frontend map
                     sh 'npm install'
                 }
