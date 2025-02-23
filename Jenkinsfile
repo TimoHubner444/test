@@ -21,6 +21,7 @@ pipeline {
                     sh 'npm install -g @angular/cli@17'
                     // Installeer de overige dependencies in de frontend map
                     sh 'npm install'
+                    sh 'npm install karma --save-dev'
                 }
             }
         }
