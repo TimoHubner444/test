@@ -60,30 +60,25 @@ pipeline {
             }
         }
 
-        stage('Deploy to EC2') {
-            steps {
-                script {
-                    // Upload the /dist folder to EC2 using SCP
-                    sh """
-                        # Ensure SSH Agent is available
-                        eval \$(ssh-agent -s)
-                        ssh-add ${EC2_PRIVATE_KEY}
-
-                        # Copy the Angular build output to the EC2 instance
-                        scp -o StrictHostKeyChecking=no -i ${EC2_PRIVATE_KEY} -r ./frontend/dist/ ${EC2_USER}@${EC2_HOST}:${REMOTE_DIR}
-
-                        # SSH into EC2 and restart the web server (e.g., Nginx)
-                        ssh -o StrictHostKeyChecking=no -i ${EC2_PRIVATE_KEY} ${EC2_USER}@${EC2_HOST} <<EOF
-                            # Ensure the correct permissions
-                            sudo chown -R nginx:nginx ${REMOTE_DIR}
-
-                            # Restart Nginx (or your chosen web server)
-                            sudo systemctl restart nginx
-                        EOF
-                    """
-                }
+                withCredentials([file(credentialsId: 'ec2-private-key', variable: 'EC2_PRIVATE_KEY')]) {
+            script {
+                // Ensure SSH Agent is available and add the private key
+                sh """
+                    eval \$(ssh-agent -s)
+                    ssh-add ${EC2_PRIVATE_KEY}
+        
+                    // Copy the Angular build output to the EC2 instance
+                    scp -o StrictHostKeyChecking=no -i ${EC2_PRIVATE_KEY} -r ./frontend/dist/ ${EC2_USER}@${EC2_HOST}:${REMOTE_DIR}
+        
+                    // SSH into EC2 and restart the web server (e.g., Nginx)
+                    ssh -T -o StrictHostKeyChecking=no -i ${EC2_PRIVATE_KEY} ${EC2_USER}@${EC2_HOST} <<EOF
+                        sudo chown -R nginx:nginx ${REMOTE_DIR}
+                        sudo systemctl restart nginx
+                    EOF
+                """
             }
         }
+
     } // <-- Dit haakje was hier nodig om de stages te sluiten
 
     post {
