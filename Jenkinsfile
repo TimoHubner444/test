@@ -55,7 +55,6 @@ pipeline {
                     echo 'Unit tests failed, but pipeline will continue.'
                 }
             }
-            // Use catchError here to allow the build to continue even if tests fail
             options {
                 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE')
             }
@@ -85,6 +84,7 @@ pipeline {
                 }
             }
         }
+    } // <-- Dit haakje was hier nodig om de stages te sluiten
 
     post {
         always {
