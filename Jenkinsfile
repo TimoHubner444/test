@@ -6,7 +6,7 @@ pipeline {
     }
 
     tools {
-        nodejs "test-node" 
+        nodejs "test-node"
     }
 
     stages {
@@ -43,7 +43,6 @@ pipeline {
                     sh 'ng test --watch=false --browsers=ChromeHeadless'
                 }
             }
-            // Voeg allowFailure toe om de pipeline te laten doorgaan als de tests falen
             post {
                 always {
                     echo 'Unit tests finished.'
@@ -52,9 +51,9 @@ pipeline {
                     echo 'Unit tests failed, but pipeline will continue.'
                 }
             }
+            // Use catchError here to allow the build to continue even if tests fail
             options {
-                // Laat de build doorgaan, zelfs als de tests falen
-                allowFailure()
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE')
             }
         }
 
@@ -62,7 +61,7 @@ pipeline {
             steps {
                 echo 'hello'
             }
-        } 
+        }
     }
 
     post {
