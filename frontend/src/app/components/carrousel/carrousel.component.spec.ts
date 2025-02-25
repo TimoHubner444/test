@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing'; // Import for HttpClient mocking
 import { of } from 'rxjs'; // to simulate an observable
 
 import { CarrouselComponent } from './carrousel.component';
@@ -21,7 +22,8 @@ describe('CarrouselComponent', () => {
     ]));
 
     await TestBed.configureTestingModule({
-      declarations: [ CarrouselComponent ],
+      declarations: [ CarrouselComponent ], // Declare your component
+      imports: [ HttpClientTestingModule ], // Import HttpClientTestingModule
       providers: [
         { provide: TodoService, useValue: mockTodoService } // Use the mocked service
       ]
