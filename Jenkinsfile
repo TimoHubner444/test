@@ -24,7 +24,6 @@ pipeline {
             steps {
                 dir('frontend') {
                     sh 'npm install -g @angular/cli@17'
-                    // Installeer de overige dependencies in de frontend map
                     sh 'npm install'
                     sh 'npm install karma --save-dev'
                 }
@@ -34,7 +33,6 @@ pipeline {
         stage('Build') {
             steps {
                 dir('frontend') {
-                    // Bouw de Angular applicatie
                     sh 'ng build --prod'
                 }
             }
@@ -43,7 +41,6 @@ pipeline {
         stage('Unit Tests') {
             steps {
                 dir('frontend') {
-                    // Voer unit tests uit
                     sh 'ng test --watch=false --browsers=ChromeHeadless'
                 }
             }
@@ -60,26 +57,28 @@ pipeline {
             }
         }
 
+        stage('Deploy to EC2') {  // Added a new stage for deployment
+            steps {
                 withCredentials([file(credentialsId: 'ec2-private-key', variable: 'EC2_PRIVATE_KEY')]) {
-            script {
-                // Ensure SSH Agent is available and add the private key
-                sh """
-                    eval \$(ssh-agent -s)
-                    ssh-add ${EC2_PRIVATE_KEY}
-        
-                    // Copy the Angular build output to the EC2 instance
-                    scp -o StrictHostKeyChecking=no -i ${EC2_PRIVATE_KEY} -r ./frontend/dist/ ${EC2_USER}@${EC2_HOST}:${REMOTE_DIR}
-        
-                    // SSH into EC2 and restart the web server (e.g., Nginx)
-                    ssh -T -o StrictHostKeyChecking=no -i ${EC2_PRIVATE_KEY} ${EC2_USER}@${EC2_HOST} <<EOF
-                        sudo chown -R nginx:nginx ${REMOTE_DIR}
-                        sudo systemctl restart nginx
-                    EOF
-                """
+                    script {
+                        sh """
+                            eval \$(ssh-agent -s)
+                            ssh-add ${EC2_PRIVATE_KEY}
+
+                            // Copy the Angular build output to the EC2 instance
+                            scp -o StrictHostKeyChecking=no -i ${EC2_PRIVATE_KEY} -r ./frontend/dist/ ${EC2_USER}@${EC2_HOST}:${REMOTE_DIR}
+
+                            // SSH into EC2 and restart the web server (e.g., Nginx)
+                            ssh -T -o StrictHostKeyChecking=no -i ${EC2_PRIVATE_KEY} ${EC2_USER}@${EC2_HOST} <<EOF
+                                sudo chown -R nginx:nginx ${REMOTE_DIR}
+                                sudo systemctl restart nginx
+                            EOF
+                        """
+                    }
+                }
             }
         }
-
-    } // <-- Dit haakje was hier nodig om de stages te sluiten
+    }
 
     post {
         always {
