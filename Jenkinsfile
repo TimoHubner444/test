@@ -4,6 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'frontend/Dockerfile'
     }
+
     tools {
         nodejs "test-node" 
     }
@@ -57,12 +58,12 @@ pipeline {
             }
         }
 
-       stage('hella') {
+        stage('hella') {
             steps {
-               echo 'hello'
+                echo 'hello'
             }
         } 
-    
+    }
 
     post {
         always {
@@ -70,4 +71,3 @@ pipeline {
         }
     }
 }
-
