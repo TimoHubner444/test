@@ -65,10 +65,10 @@ pipeline {
                             eval \$(ssh-agent -s)
                             ssh-add ${EC2_PRIVATE_KEY}
 
-                            // Copy the Angular build output to the EC2 instance
+                            # Copy the Angular build output to the EC2 instance
                             scp -o StrictHostKeyChecking=no -i ${EC2_PRIVATE_KEY} -r ./frontend/dist/ ${EC2_USER}@${EC2_HOST}:${REMOTE_DIR}
 
-                            // SSH into EC2 and restart the web server (e.g., Nginx)
+                            # SSH into EC2 and restart the web server (e.g., Nginx)
                             ssh -T -o StrictHostKeyChecking=no -i ${EC2_PRIVATE_KEY} ${EC2_USER}@${EC2_HOST} <<EOF
                                 sudo chown -R nginx:nginx ${REMOTE_DIR}
                                 sudo systemctl restart nginx
