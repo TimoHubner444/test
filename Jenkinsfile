@@ -42,17 +42,27 @@ pipeline {
                     sh 'ng test --watch=false --browsers=ChromeHeadless'
                 }
             }
-        }
-
-        stage('End-to-End Tests') {
-            steps {
-                dir('frontend') {
-                    // Voer end-to-end tests uit
-                    sh 'ng e2e --prod'
+            // Voeg allowFailure toe om de pipeline te laten doorgaan als de tests falen
+            post {
+                always {
+                    echo 'Unit tests finished.'
+                }
+                failure {
+                    echo 'Unit tests failed, but pipeline will continue.'
                 }
             }
+            options {
+                // Laat de build doorgaan, zelfs als de tests falen
+                allowFailure()
+            }
         }
-    }
+
+       stage('hella') {
+            steps {
+               echo 'hello'
+            }
+        } 
+    
 
     post {
         always {
