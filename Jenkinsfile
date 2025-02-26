@@ -61,20 +61,20 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'ec2-private-key', variable: 'EC2_PRIVATE_KEY')]) {
                     script {
+                        // Secure way to use ssh-agent and the private key
                         sh """
                             eval \$(ssh-agent -s)
-                            ssh-add ${EC2_PRIVATE_KEY}
+                            ssh-add \${EC2_PRIVATE_KEY}
 
                             # Copy the Angular build output to the EC2 instance
-                            scp -o StrictHostKeyChecking=no -i ${EC2_PRIVATE_KEY} -r ./frontend/dist/ ${EC2_USER}@${EC2_HOST}:${REMOTE_DIR}
+                            scp -o StrictHostKeyChecking=no -i \${EC2_PRIVATE_KEY} -r ./frontend/dist/ \${EC2_USER}@\${EC2_HOST}:\${REMOTE_DIR}
 
                             # SSH into EC2 and restart the web server (e.g., Nginx)
-                            ssh -T -o StrictHostKeyChecking=no -i ${EC2_PRIVATE_KEY} ${EC2_USER}@${EC2_HOST} <<EOF
-                                sudo chown -R nginx:nginx ${REMOTE_DIR}
+                            ssh -T -o StrictHostKeyChecking=no -i \${EC2_PRIVATE_KEY} \${EC2_USER}@\${EC2_HOST} <<EOF
+                                sudo chown -R nginx:nginx \${REMOTE_DIR}
                                 sudo systemctl restart nginx
                             EOF
                         """
-                    }
                 }
             }
         }
