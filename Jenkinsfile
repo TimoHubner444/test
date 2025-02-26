@@ -66,7 +66,9 @@ pipeline {
                             eval \$(ssh-agent -s)
                             ssh-add \${EC2_PRIVATE_KEY}
 
-                         
+                            # Ensure proper permissions on the target directory on EC2
+                            ssh -o StrictHostKeyChecking=no \${EC2_USER}@\${EC2_HOST} \
+                            "sudo chown -R \${EC2_USER}:\${EC2_USER} \${REMOTE_DIR} && sudo chmod -R 755 \${REMOTE_DIR}"
         
                             # Copy the Angular build output to the EC2 instance
                             scp -o StrictHostKeyChecking=no -i \${EC2_PRIVATE_KEY} -r ./frontend/dist/ \${EC2_USER}@\${EC2_HOST}:\${REMOTE_DIR}
