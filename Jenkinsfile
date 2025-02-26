@@ -5,7 +5,7 @@ pipeline {
         DOCKER_IMAGE = 'frontend/Dockerfile'
         EC2_PRIVATE_KEY = credentials('ec2-private-key')  // Stored in Jenkins Credentials Manager
         EC2_USER = 'ec2-user'  // Default user for Amazon Linux or adjust based on your AMI (e.g., ubuntu for Ubuntu AMIs)
-        EC2_HOST = '34.236.151.120'
+        EC2_HOST = '44.220.139.70'
         REMOTE_DIR = '/home/ec2-user/testmap'  // The directory on the EC2 instance to deploy to
     }
 
