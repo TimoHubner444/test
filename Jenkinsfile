@@ -75,6 +75,7 @@ pipeline {
                                 sudo systemctl restart nginx
                             EOF
                         """
+                    }
                 }
             }
         }
