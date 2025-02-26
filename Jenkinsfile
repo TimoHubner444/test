@@ -66,15 +66,12 @@ pipeline {
                             eval \$(ssh-agent -s)
                             ssh-add \${EC2_PRIVATE_KEY}
 
-                            # Change ownership of the local directory to ec2-user before copying
-                            ssh -o StrictHostKeyChecking=no -i \${EC2_PRIVATE_KEY} \${EC2_USER}@\${EC2_HOST} \
-                                "sudo chown -R ec2-user:ec2-user ./frontend/dist/"
+                         
         
                             # Copy the Angular build output to the EC2 instance
                             scp -o StrictHostKeyChecking=no -i \${EC2_PRIVATE_KEY} -r ./frontend/dist/ \${EC2_USER}@\${EC2_HOST}:\${REMOTE_DIR}
 
-                            ssh -o StrictHostKeyChecking=no -i \${EC2_PRIVATE_KEY} \${EC2_USER}@\${EC2_HOST} \
-                                "sudo chown -R nginx:nginx /home/ec2-user/testmap/dist/frontend"
+                         
                             
                             # SSH into EC2 and restart the web server (e.g., Nginx) without using EOF
                             ssh -o StrictHostKeyChecking=no -i \${EC2_PRIVATE_KEY} \${EC2_USER}@\${EC2_HOST} \
