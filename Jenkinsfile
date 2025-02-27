@@ -2,7 +2,8 @@ pipeline {
     agent any
 
     environment {
-        
+        DOCKER_IMAGE_NAME = 'Dockerfile'
+        DOCKER_TAG = 'latest' // or use a dynamic tag like "${GIT_COMMIT}"
         EC2_PRIVATE_KEY = credentials('ec2-private-key')  // Stored in Jenkins Credentials Manager
         EC2_USER = 'ec2-user'  // Default user for Amazon Linux or adjust based on your AMI (e.g., ubuntu for Ubuntu AMIs)
         EC2_HOST = '54.163.20.34'
@@ -32,10 +33,26 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build Docker Image') {
             steps {
-                dir('frontend') {
-                    sh 'ng build --prod'
+                script {
+                    // Navigate to the frontend directory and build the Docker image
+                    dir('frontend') {
+                        // Build Docker image from the Dockerfile in the frontend directory
+                        sh "docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_TAG} ."
+                    }
+                }
+            }
+        }
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    // Run the container in the background (detached mode)
+                    sh """
+                    docker run -d --name ${CONTAINER_NAME} \
+                        -p 8080:80 \  // Assuming you want to expose port 80 in the container to port 8080 on the host
+                        ${DOCKER_IMAGE_NAME}:${DOCKER_TAG}
+                    """
                 }
             }
         }
