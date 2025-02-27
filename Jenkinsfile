@@ -30,7 +30,7 @@ pipeline {
                 script {
                     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                         // Build Docker image
-                        sh "docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_TAG} -f frontend/Dockerfile ."
+                        sh "docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_TAG} -f frontend/Dockerfile.test ."
         
                         // Optionally run the container to ensure it works
                         sh "docker run --rm ${DOCKER_IMAGE_NAME}:${DOCKER_TAG}"
