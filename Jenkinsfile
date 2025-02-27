@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'frontend/Dockerfile'
+        DOCKER_IMAGE = 'node:22.14'  // Gebruik de Node.js 22.14 Docker-image
         EC2_PRIVATE_KEY = credentials('ec2-private-key')  // Stored in Jenkins Credentials Manager
         EC2_USER = 'ec2-user'  // Default user for Amazon Linux or adjust based on your AMI (e.g., ubuntu for Ubuntu AMIs)
         EC2_HOST = '44.220.139.70'
@@ -38,10 +38,17 @@ pipeline {
             }
         }
 
-        stage('Unit Tests') {
+        stage('Unit Tests in Docker') {
             steps {
-                dir('frontend') {
-                    sh 'ng test --watch=false --browsers=ChromeHeadless'
+                script {
+                    // Start een container met de benodigde Node.js omgeving voor tests
+                    sh """
+                        docker run --rm -v \$(pwd)/frontend:/app -w /app \${DOCKER_IMAGE} bash -c '
+                            npm install -g @angular/cli@17 &&
+                            npm install &&
+                            npm install karma --save-dev &&
+                            ng test --watch=false --browsers=ChromeHeadless'
+                    """
                 }
             }
             post {
@@ -73,9 +80,7 @@ pipeline {
                             # Copy the Angular build output to the EC2 instance
                             scp -o StrictHostKeyChecking=no -i \${EC2_PRIVATE_KEY} -r ./frontend/dist/ \${EC2_USER}@\${EC2_HOST}:\${REMOTE_DIR}
 
-                         
-                            
-                            # SSH into EC2 and restart the web server (e.g., Nginx) without using EOF
+                            # SSH into EC2 and restart the web server (e.g., Nginx)
                             ssh -o StrictHostKeyChecking=no -i \${EC2_PRIVATE_KEY} \${EC2_USER}@\${EC2_HOST} \
                                 "sudo chown -R nginx:nginx \${REMOTE_DIR} && sudo systemctl restart nginx"
                         """
