@@ -41,10 +41,10 @@ pipeline {
         }
 
         stage('Unit Tests in Custom Docker') {
-            steps {
-                
+             steps {
+                dir('frontend') {  // Make sure you are in the correct directory
                     sh 'ng test --watch=false --browsers=ChromeHeadless'
-                
+                }
             }
             post {
                 always {
