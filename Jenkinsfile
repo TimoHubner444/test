@@ -29,31 +29,21 @@ pipeline {
             steps {
                 script {
                     // Navigate to the frontend directory and build the Docker image
-                    dir('frontend') {
-                        // Build Docker image from the Dockerfile in the frontend directory
-                        sh "docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_TAG} ."
-                    }
+                    
+                    // Build Docker image from the Dockerfile in the frontend directory
+                    sh "docker build -t ${DOCKER_IMAGE_NAME} -f Dockerfile.test ."
+                    sh "docker run --rm ${DOCKER_IMAGE_NAME}"
+                    
                 }
             }
         }
-        stage('Run Docker Container') {
-            steps {
-                script {
-                    // Run the container in the background (detached mode)
-                    sh """
-                    docker run -d --name ${CONTAINER_NAME} \
-                        -p 8080:80 \
-                        ${DOCKER_IMAGE_NAME}:${DOCKER_TAG}
-                    """
-                }
-            }
-        }
+        
 
 
         stage('Unit Tests ') {
              steps {
                 dir('frontend') {  // Make sure you are in the correct directory
-                    sh 'ng test --watch=false --browsers=ChromeHeadless'
+                    sh 'echo hello'
                 }
             }
             post {
