@@ -31,7 +31,7 @@ pipeline {
                     // Navigate to the frontend directory and build the Docker image
                     
                     // Build Docker image from the Dockerfile in the frontend directory
-                    sh "docker build -t ${DOCKER_IMAGE_NAME} -f Dockerfile.test ."
+                    sh "docker build -t ${DOCKER_IMAGE_NAME} -f frontend/Dockerfile.test ."
                     sh "docker run --rm ${DOCKER_IMAGE_NAME}"
                     
                 }
