@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'custom-angular-image'  // Name for your custom Docker image
+        DOCKER_IMAGE = 'custom-docker-image'  // Name for your custom Docker image
         EC2_PRIVATE_KEY = credentials('ec2-private-key')  // Stored in Jenkins Credentials Manager
         EC2_USER = 'ec2-user'  // Default user for Amazon Linux or adjust based on your AMI (e.g., ubuntu for Ubuntu AMIs)
         EC2_HOST = '54.163.20.34'
