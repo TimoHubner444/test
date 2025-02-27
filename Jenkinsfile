@@ -7,8 +7,6 @@ pipeline {
         EC2_USER = 'ec2-user'  // Default user for Amazon Linux or adjust based on your AMI (e.g., ubuntu for Ubuntu AMIs)
         EC2_HOST = '54.163.20.34'
         REMOTE_DIR = '/home/ec2-user/testmap'  // The directory on the EC2 instance to deploy to
-        DOCKER_IMAGE = 'dockerfile'
-        WORKSPACE_DIR = "${env.WORKSPACE}/frontend/dist" // Pad naar de dist folder in de Jenkins workspace
     }
 
     tools {
@@ -22,33 +20,31 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
-                steps {
-                    script {
-                        // Bouw de Docker-image (zorg ervoor dat je Docker geïnstalleerd hebt op je Jenkins agent)
-                        sh 'docker build -f frontend/Dockerfile -t $DOCKER_IMAGE ./frontend'
+        
 
-                    }
+        stage('Install Dependencies') {
+            steps {
+                dir('frontend') {
+                    sh 'npm install -g @angular/cli@17'
+                    sh 'npm install'
+                    sh 'npm install karma --save-dev'
                 }
-            }    
+            }
+        }
 
-      
+        stage('Build') {
+            steps {
+                dir('frontend') {
+                    sh 'ng build --prod'
+                }
+            }
+        }
 
         stage('Unit Tests ') {
              steps {
-                script {
-                    // Start de container in de achtergrond
-                    sh 'docker run -d --name angular-container $DOCKER_IMAGE'
-
-                    // Installeer Angular CLI, Karma, en de Chrome browser in de draaiende container
-                    sh 'docker exec angular-container npm install -g @angular/cli@17'
-                    sh 'docker exec angular-container npm install -g karma karma-cli karma-chrome-launcher'
-                    sh 'docker exec angular-container apt-get update && apt-get install -y google-chrome-stable'
-
-                    // Voer de tests uit in de container
-                    sh 'docker exec angular-container ng test --watch=false --browsers=ChromeHeadless'
+                dir('frontend') {  // Make sure you are in the correct directory
+                    sh 'ng test --watch=false --browsers=ChromeHeadless'
                 }
-                
             }
             post {
                 always {
@@ -60,20 +56,6 @@ pipeline {
             }
             options {
                 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE')
-            }
-        }
-        stage('Build Angular Project in Docker') {
-            steps {
-                script {
-                    // Bouw de Angular app in de Docker-container (voor de dist/ map)
-                    sh 'docker exec angular-container ng build --prod'
-
-                    // Kopieer de dist/ map van de Docker-container naar de Jenkins workspace
-                    sh 'docker cp angular-container:/app/frontend/dist ./frontend/dist'
-
-                    // Sla het artifact op in de Jenkins workspace (zorg ervoor dat het pad naar de workspace correct is)
-                    sh "cp -r ./frontend/dist $WORKSPACE_DIR"
-                }
             }
         }
 
