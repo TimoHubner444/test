@@ -50,12 +50,13 @@ pipeline {
                     // Run the container in the background (detached mode)
                     sh """
                     docker run -d --name ${CONTAINER_NAME} \
-                        -p 8080:80 \  // Assuming you want to expose port 80 in the container to port 8080 on the host
+                        -p 8080:80 \
                         ${DOCKER_IMAGE_NAME}:${DOCKER_TAG}
                     """
                 }
             }
         }
+
 
         stage('Unit Tests ') {
              steps {
