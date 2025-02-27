@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE_NAME = 'Dockerfile'
+        DOCKER_IMAGE_NAME = 'dockerfile'
         DOCKER_TAG = 'latest' // or use a dynamic tag like "${GIT_COMMIT}"
         EC2_PRIVATE_KEY = credentials('ec2-private-key')  // Stored in Jenkins Credentials Manager
         EC2_USER = 'ec2-user'  // Default user for Amazon Linux or adjust based on your AMI (e.g., ubuntu for Ubuntu AMIs)
@@ -23,15 +23,7 @@ pipeline {
 
         
 
-        stage('Install Dependencies') {
-            steps {
-                dir('frontend') {
-                    sh 'npm install -g @angular/cli@17'
-                    sh 'npm install'
-                    sh 'npm install karma --save-dev'
-                }
-            }
-        }
+       
 
         stage('Build Docker Image') {
             steps {
