@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'custom-docker-image'  // Name for your custom Docker image
+        
         EC2_PRIVATE_KEY = credentials('ec2-private-key')  // Stored in Jenkins Credentials Manager
         EC2_USER = 'ec2-user'  // Default user for Amazon Linux or adjust based on your AMI (e.g., ubuntu for Ubuntu AMIs)
         EC2_HOST = '54.163.20.34'
@@ -20,16 +20,7 @@ pipeline {
             }
         }
 
-        stage('Build Custom Docker Image') {
-            steps {
-                dir('frontend') {
-                    // Build your custom Docker image from the Dockerfile in the frontend directory
-                   sh 'docker build -t ${DOCKER_IMAGE} .'
-
-
-                }
-            }
-        }
+        
 
         stage('Install Dependencies') {
             steps {
@@ -51,13 +42,9 @@ pipeline {
 
         stage('Unit Tests in Custom Docker') {
             steps {
-                script {
-                    // Start a container using your custom Docker image for running unit tests
-                    sh """
-                        docker run --rm -v \$(pwd)/frontend:/app -w /app ${DOCKER_IMAGE} bash -c '
-                            ng test --watch=false --browsers=ChromeHeadless'
-                    """
-                }
+                
+                    sh 'ng test --watch=false --browsers=ChromeHeadless'
+                
             }
             post {
                 always {
