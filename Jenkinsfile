@@ -26,7 +26,8 @@ pipeline {
                 steps {
                     script {
                         // Bouw de Docker-image (zorg ervoor dat je Docker geïnstalleerd hebt op je Jenkins agent)
-                        sh 'docker build -t $DOCKER_IMAGE .'
+                        sh 'docker build -f frontend/Dockerfile -t $DOCKER_IMAGE ./frontend'
+
                     }
                 }
             }    
