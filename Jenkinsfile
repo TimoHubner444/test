@@ -2,10 +2,10 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'node:22.14'  // Gebruik de Node.js 22.14 Docker-image
+        DOCKER_IMAGE = 'custom-angular-image'  // Name for your custom Docker image
         EC2_PRIVATE_KEY = credentials('ec2-private-key')  // Stored in Jenkins Credentials Manager
         EC2_USER = 'ec2-user'  // Default user for Amazon Linux or adjust based on your AMI (e.g., ubuntu for Ubuntu AMIs)
-        EC2_HOST = '44.220.139.70'
+        EC2_HOST = '54.163.20.34'
         REMOTE_DIR = '/home/ec2-user/testmap'  // The directory on the EC2 instance to deploy to
     }
 
@@ -17,6 +17,15 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main', url: 'https://github.com/TimoHubner444/test.git'
+            }
+        }
+
+        stage('Build Custom Docker Image') {
+            steps {
+                dir('frontend') {
+                    // Build your custom Docker image from the Dockerfile in the frontend directory
+                    sh 'docker build -t ${DOCKER_IMAGE} .'
+                }
             }
         }
 
@@ -38,15 +47,12 @@ pipeline {
             }
         }
 
-        stage('Unit Tests in Docker') {
+        stage('Unit Tests in Custom Docker') {
             steps {
                 script {
-                    // Start een container met de benodigde Node.js omgeving voor tests
+                    // Start a container using your custom Docker image for running unit tests
                     sh """
-                        docker run --rm -v \$(pwd)/frontend:/app -w /app \${DOCKER_IMAGE} bash -c '
-                            npm install -g @angular/cli@17 &&
-                            npm install &&
-                            npm install karma --save-dev &&
+                        docker run --rm -v \$(pwd)/frontend:/app -w /app ${DOCKER_IMAGE} bash -c '
                             ng test --watch=false --browsers=ChromeHeadless'
                     """
                 }
