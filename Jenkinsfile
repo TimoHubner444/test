@@ -25,37 +25,38 @@ pipeline {
 
        
 
-        stage('Build Docker Image') {
+        stage('Build Docker Image and run') {
             steps {
                 script {
-                    // Navigate to the frontend directory and build the Docker image
-                    
-                    // Build Docker image from the Dockerfile in the frontend directory
-                    sh "docker build -t ${DOCKER_IMAGE_NAME} -f frontend/Dockerfile.test ."
-                    sh "docker run --rm ${DOCKER_IMAGE_NAME}"
-                    
+                    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                        // Build Docker image
+                        sh "docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_TAG} -f frontend/Dockerfile ."
+        
+                        // Optionally run the container to ensure it works
+                        sh "docker run --rm ${DOCKER_IMAGE_NAME}:${DOCKER_TAG}"
+                    }
                 }
             }
         }
+
         
 
 
-        stage('Unit Tests ') {
-             steps {
-                dir('frontend') {  // Make sure you are in the correct directory
-                    sh 'echo hello'
+        stage('Install Dependencies') {
+            steps {
+                dir('frontend') {
+                    sh 'npm install -g @angular/cli@17'
+                    sh 'npm install'
+                    sh 'npm install karma --save-dev'
                 }
             }
-            post {
-                always {
-                    echo 'Unit tests finished.'
+        }
+
+        stage('Build') {
+            steps {
+                dir('frontend') {
+                    sh 'ng build --prod'
                 }
-                failure {
-                    echo 'Unit tests failed, but pipeline will continue.'
-                }
-            }
-            options {
-                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE')
             }
         }
 
