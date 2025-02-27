@@ -24,7 +24,8 @@ pipeline {
             steps {
                 dir('frontend') {
                     // Build your custom Docker image from the Dockerfile in the frontend directory
-                    sh 'docker build -t ${DOCKER_IMAGE} -f test/frontend/${DOCKER_IMAGE} .'
+                   sh 'docker build -t custom-docker-image -f frontend/Dockerfile .'
+
 
                 }
             }
