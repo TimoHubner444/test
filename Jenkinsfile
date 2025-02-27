@@ -7,7 +7,7 @@ pipeline {
         EC2_USER = 'ec2-user'  // Default user for Amazon Linux or adjust based on your AMI (e.g., ubuntu for Ubuntu AMIs)
         EC2_HOST = '54.163.20.34'
         REMOTE_DIR = '/home/ec2-user/testmap'  // The directory on the EC2 instance to deploy to
-        DOCKER_IMAGE = 'Dockerfile'
+        DOCKER_IMAGE = 'dockerfile'
         WORKSPACE_DIR = "${env.WORKSPACE}/frontend/dist" // Pad naar de dist folder in de Jenkins workspace
     }
 
