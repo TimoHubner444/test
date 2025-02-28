@@ -1,30 +1,36 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Todo } from 'src/app/models/todo.model';
+import { CarrouselItem } from 'src/app/CarrouselItem.model';
 import { TodoService } from 'src/app/services/todo.service';
-import { TodoItemComponent } from '../todo-item/todo-item.component';
 
 @Component({
-  selector: 'app-add-todo',
-  templateUrl: './add-todo.component.html',
-  styleUrls: ['./add-todo.component.css']
+  selector: 'app-carrousel',
+  templateUrl: './carrousel.component.html',
+  styleUrls: ['./carrousel.component.css']
 })
-export class AddTodoComponent implements OnInit {
-  myForm!: FormGroup;
-  constructor(private todoService: TodoService, private router: Router) { }
+export class CarrouselComponent implements OnInit {
+  images!: CarrouselItem[];
+  activeItem: number = 0;
+  counter!: any;
+  constructor(private todoService: TodoService) { }
 
   ngOnInit(): void {
-    this.myForm = new FormGroup({
-      title: new FormControl(''),
-      label: new FormControl('')
-    });
+    this.todoService.getCarrouselItems().subscribe(
+      (data: any) => {
+        this.images = data;
+      }
+    );
+
+    this.counter = setInterval( () => {
+      this.activeItem = (this.activeItem >= this.images.length-1) ? 0 : this.activeItem+1;
+    },5000);
   }
 
-  add(): void {
-    let todo: Todo = this.myForm.value;
-    this.todoService.addTodo(todo).subscribe(() =>{
-      this.router.navigate(['/home']);
-    });
+  ngOnDestroy(): void{
+    clearInterval(this.counter);
   }
+
+  checkIfActive(index: number) {
+    return this.activeItem === index;
+  }
+
 }
