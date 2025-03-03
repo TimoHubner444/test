@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE_NAME = 'dockerfile'
         DOCKER_TAG = 'latest' // or use a dynamic tag like "${GIT_COMMIT}"
-        FRONTEND_KEY = 'frontend-key'
+        FRONTEND_KEY = '/home/ec2-user/.keys/snb3-frontend.pem'
         AWS_FRONTEND = 'ec2-user@98.85.146.55'
         
         BASTION_HOST = '54.164.238.221'
@@ -93,7 +93,7 @@ pipeline {
         
                             # Step 3: Copy the files from Bastion to the EC2 instance
                             ssh -o StrictHostKeyChecking=no -i \${BASTION_PRIVATE_KEY} \${BASTION_USER}@\${BASTION_HOST} "
-                                scp -o StrictHostKeyChecking=no -i \${FRONTEND_KEY} -r /home/ec2-user/.frontend-pipeline/ \${AWS_FRONTEND}:/home/ec2-user/.frontend-pipeline/
+                                scp -o StrictHostKeyChecking=no -r \${FRONTEND_KEY}  /home/ec2-user/.frontend-pipeline/ \${AWS_FRONTEND}:/home/ec2-user/.frontend-pipeline/
                             "
                         """
                     }
