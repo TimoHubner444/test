@@ -84,4 +84,16 @@ pipeline {
                             # SSH to Bastion and then deploy on EC2
                             ssh -o StrictHostKeyChecking=no -i \${BASTION_PRIVATE_KEY} ${BASTION_USER}@${BASTION_HOST} "echo 'SCP successful, starting deployment on EC2'"
                             scp -i ${FRONTEND_KEY} /home/ec2-user/.frontend-pipeline ${AWS_FRONTEND}:/home/ec2-user/.frontend-pipeline
-                
+                        """
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
