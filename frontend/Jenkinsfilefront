@@ -72,7 +72,7 @@ pipeline {
 
         stage('Test SSH and SCP Connection to EC2 through Bastion') {
             steps {
-                sshagent(['BASTION_PRIVATE_KEY']) {
+                sshagent(['bastion-private-key']) {
                     script {
                         // Perform SSH to Bastion, then SCP the frontend dist folder to the Bastion and from Bastion to EC2
                         sh """
