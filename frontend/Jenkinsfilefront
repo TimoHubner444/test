@@ -86,7 +86,7 @@ pipeline {
                             # Step 1: Use SSH agent to add bastion private key
                             eval \$(ssh-agent -s)
                             ssh-add \${BASTION_PRIVATE_KEY}
-                            ssh-add ${FRONTEND_KEY}
+                            ssh-add \${FRONTEND_KEY}
         
                             # Step 2: Copy the build files to the Bastion host
                             scp -o StrictHostKeyChecking=no -i \${BASTION_PRIVATE_KEY} -r ./frontend/dist/ \${BASTION_USER}@\${BASTION_HOST}:/home/ec2-user/.frontend-pipeline/
