@@ -79,7 +79,7 @@ pipeline {
        stage('Deploy to Bastion and then EC2') {
             steps {
                 withCredentials([file(credentialsId: 'bastion-private-key', variable: 'BASTION_PRIVATE_KEY'),
-                                 file(credentialsId: 'frontend-private-key', variable: 'FRONTEND_KEY')]) {
+                                 file(credentialsId: 'frontend-key', variable: 'FRONTEND_KEY')]) {
                     script {
                         // Secure way to use ssh-agent for both bastion and EC2 private keys
                         sh """
