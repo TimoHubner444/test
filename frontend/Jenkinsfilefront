@@ -23,7 +23,7 @@ pipeline {
             }
         }
 
-         stage('Test SSH Connection to Bastion') {
+        stage('Test SSH Connection to Bastion') {
             steps {
                 withCredentials([file(credentialsId: 'frontend-key', variable: 'FRONTEND_KEY')]) {
                     script {
@@ -36,8 +36,6 @@ pipeline {
                 }
             }
         }
-
-       
 
         stage('Build Docker Image and run') {
             steps {
@@ -52,9 +50,6 @@ pipeline {
                 }
             }
         }
-
-        
-
 
         stage('Install Dependencies') {
             steps {
@@ -73,8 +68,9 @@ pipeline {
                 }
             }
         }
-       
-        stage('Test SSH Connection to Bastion') {
+
+        // Renamed this stage to avoid duplicates
+        stage('Test SSH Connection to Bastion Again') {
             steps {
                 withCredentials([file(credentialsId: 'bastion-private-key', variable: 'BASTION_PRIVATE_KEY')]) {
                     script {
@@ -88,7 +84,7 @@ pipeline {
             }
         }
 
-       stage('Deploy to Bastion and then EC2') {
+        stage('Deploy to Bastion and then EC2') {
             steps {
                 withCredentials([
                     file(credentialsId: 'bastion-private-key', variable: 'BASTION_PRIVATE_KEY'),
@@ -100,7 +96,6 @@ pipeline {
                             eval $(ssh-agent -s)
                             ssh-add ${BASTION_PRIVATE_KEY}
                             ssh-add \$FRONTEND_KEY
-
                         '''
                         
                         // SCP files from Jenkins to Bastion
@@ -118,9 +113,6 @@ pipeline {
                 }
             }
         }
-
-
-
     }
 
     post {
