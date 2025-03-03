@@ -86,20 +86,24 @@ pipeline {
                             # Step 1: Use SSH agent to add bastion private key
                             eval \$(ssh-agent -s)
                             ssh-add \${BASTION_PRIVATE_KEY}
-                            
-        
+            
                             # Step 2: Copy the build files to the Bastion host
                             scp -o StrictHostKeyChecking=no -i \${BASTION_PRIVATE_KEY} -r ./frontend/dist/ \${BASTION_USER}@\${BASTION_HOST}:/home/ec2-user/.frontend-pipeline/
-        
-                            # Step 3: Copy the files from Bastion to the EC2 instance
+            
+                            # Step 3: SSH into the Bastion and print the working directory before SCP to EC2 instance
                             ssh -o StrictHostKeyChecking=no -i \${BASTION_PRIVATE_KEY} \${BASTION_USER}@\${BASTION_HOST} "
-                                scp -o StrictHostKeyChecking=no -r \${FRONTEND_KEY}  /home/ec2-user/.frontend-pipeline/ \${AWS_FRONTEND}:/home/ec2-user/.frontend-pipeline/
+                                # Print the working directory
+                                pwd
+                                
+                                # Now SCP the files from Bastion to the EC2 instance
+                                scp -o StrictHostKeyChecking=no -i \${FRONTEND_KEY} -r /home/ec2-user/.frontend-pipeline/ \${AWS_FRONTEND}:/home/ec2-user/.frontend-pipeline/
                             "
                         """
                     }
                 }
             }
         }
+
 
     }
 
