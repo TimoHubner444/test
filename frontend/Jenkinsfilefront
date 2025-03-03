@@ -87,6 +87,8 @@ pipeline {
                         sh '''
                             eval $(ssh-agent -s)
                             ssh-add ${BASTION_PRIVATE_KEY}
+                            ssh-add \$FRONTEND_KEY
+
                         '''
                         
                         // SCP files from Jenkins to Bastion
