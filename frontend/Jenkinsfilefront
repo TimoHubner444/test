@@ -93,7 +93,7 @@ pipeline {
         
                             # Step 3: Copy the files from Bastion to the EC2 instance
                             ssh -o StrictHostKeyChecking=no -i \${BASTION_PRIVATE_KEY} \${BASTION_USER}@\${BASTION_HOST} "
-                                scp -o StrictHostKeyChecking=no -r \${FRONTEND_KEY} /home/ec2-user/.frontend-pipeline/ \${AWS_FRONTEND}:/home/ec2-user/.frontend-pipeline/
+                                scp -o StrictHostKeyChecking=no -i \${FRONTEND_KEY} -r /home/ec2-user/.frontend-pipeline/ \${AWS_FRONTEND}:/home/ec2-user/.frontend-pipeline/
                             "
                         """
                     }
