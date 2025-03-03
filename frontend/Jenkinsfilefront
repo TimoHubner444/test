@@ -4,9 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE_NAME = 'dockerfile'
         DOCKER_TAG = 'latest' // or use a dynamic tag like "${GIT_COMMIT}"
-        EC2_PRIVATE_KEY = credentials('ec2-private-key')  // Stored in Jenkins Credentials Manager
-        EC2_USER = 'ec2-user'  // Default user for Amazon Linux or adjust based on your AMI (e.g., ubuntu for Ubuntu AMIs)
-        EC2_HOST = '54.163.20.34'
+        
         REMOTE_DIR = '/home/ec2-user/testmap'  // The directory on the EC2 instance to deploy to
         BASTION_HOST = '54.164.238.221'
         BASTION_USER = 'ec2-user'  // Adjust if different for the bastion host
