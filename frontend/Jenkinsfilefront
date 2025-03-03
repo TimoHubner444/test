@@ -96,7 +96,7 @@ pipeline {
                                 pwd
                                 
                                 # Now SCP the files from Bastion to the EC2 instance
-                                scp -o StrictHostKeyChecking=no -i \${FRONTEND_KEY} -r /home/ec2-user/.frontend-pipeline/ \${AWS_FRONTEND}:/home/ec2-user/.frontend-pipeline/
+                                scp -o StrictHostKeyChecking=no -i ${FRONTEND_KEY} -r /home/ec2-user/.frontend-pipeline/ \${AWS_FRONTEND}:/home/ec2-user/.frontend-pipeline/
                             "
                         """
                     }
