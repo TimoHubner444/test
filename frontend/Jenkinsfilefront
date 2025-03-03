@@ -92,11 +92,9 @@ pipeline {
             
                             # Step 3: SSH into the Bastion and print the working directory before SCP to EC2 instance
                             ssh -o StrictHostKeyChecking=no -i \${BASTION_PRIVATE_KEY} \${BASTION_USER}@\${BASTION_HOST} "
-                                # Print the working directory
-                                pwd
-                            ssh -i ${FRONTEND_KEY} ${AWS_FRONTEND}   
+                               
                                 # Now SCP the files from Bastion to the EC2 instance
-                                # scp -o StrictHostKeyChecking=no -i ${FRONTEND_KEY} -r /home/ec2-user/.frontend-pipeline/ \${AWS_FRONTEND}:/home/ec2-user/.frontend-pipeline/
+                            scp -o StrictHostKeyChecking=no -i ${FRONTEND_KEY} -r /home/ec2-user/.frontend-pipeline/ \${AWS_FRONTEND}:/home/ec2-user/.frontend-pipeline/
                             "
                         """
                     }
