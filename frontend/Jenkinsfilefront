@@ -4,8 +4,9 @@ pipeline {
     environment {
         DOCKER_IMAGE_NAME = 'dockerfile'
         DOCKER_TAG = 'latest' // or use a dynamic tag like "${GIT_COMMIT}"
+        FRONTEND_KEY = 'frontend-key'
+        AWS_FRONTEND = 'ec2-user@98.85.146.55'
         
-        REMOTE_DIR = '/home/ec2-user/testmap'  // The directory on the EC2 instance to deploy to
         BASTION_HOST = '54.164.238.221'
         BASTION_USER = 'ec2-user'  // Adjust if different for the bastion host
         BASTION_PRIVATE_KEY = credentials('bastion-private-key')  // Store the bastion private key in Jenkins Credentials Manager
@@ -22,19 +23,7 @@ pipeline {
             }
         }
 
-         stage('Test SSH Connection to Bastion') {
-                steps {
-                    withCredentials([file(credentialsId: 'bastion-private-key', variable: 'BASTION_PRIVATE_KEY')]) {
-                        script {
-                            // Test SSH connection to the Bastion Host
-                            sh """
-                                # Test SSH connection to the Bastion Host
-                                ssh -o StrictHostKeyChecking=no -i \${BASTION_PRIVATE_KEY} \${BASTION_USER}@\${BASTION_HOST} 'echo "SSH connection successful to Bastion"'
-                            """
-                        }
-                    }
-                }
-            }
+         
 
        
 
@@ -73,32 +62,44 @@ pipeline {
             }
         }
        
-
-
-        stage('Deploy to EC2') {  // Added a new stage for deployment
+        stage('Test SSH Connection to Bastion') {
             steps {
-                withCredentials([file(credentialsId: 'ec2-private-key', variable: 'EC2_PRIVATE_KEY')]) {
+                withCredentials([file(credentialsId: 'bastion-private-key', variable: 'BASTION_PRIVATE_KEY')]) {
                     script {
-                        // Secure way to use ssh-agent and the private key
+                        // Test SSH connection to the Bastion Host
                         sh """
-                            eval \$(ssh-agent -s)
-                            ssh-add \${EC2_PRIVATE_KEY}
-
-                            # Ensure proper permissions on the target directory on EC2
-                            ssh -o StrictHostKeyChecking=no \${EC2_USER}@\${EC2_HOST} \
-                            "sudo chown -R \${EC2_USER}:\${EC2_USER} \${REMOTE_DIR} && sudo chmod -R 755 \${REMOTE_DIR}"
-        
-                            # Copy the Angular build output to the EC2 instance
-                            scp -o StrictHostKeyChecking=no -i \${EC2_PRIVATE_KEY} -r ./frontend/dist/ \${EC2_USER}@\${EC2_HOST}:\${REMOTE_DIR}
-
-                            # SSH into EC2 and restart the web server (e.g., Nginx)
-                            ssh -o StrictHostKeyChecking=no -i \${EC2_PRIVATE_KEY} \${EC2_USER}@\${EC2_HOST} \
-                                "sudo chown -R nginx:nginx \${REMOTE_DIR} && sudo systemctl restart nginx"
+                            # Test SSH connection to the Bastion Host
+                            ssh -o StrictHostKeyChecking=no -i \${BASTION_PRIVATE_KEY} \${BASTION_USER}@\${BASTION_HOST} 'echo "SSH connection successful to Bastion"'
                         """
                     }
                 }
             }
         }
+
+       stage('Deploy to Bastion and then EC2') {
+            steps {
+                withCredentials([file(credentialsId: 'bastion-private-key', variable: 'BASTION_PRIVATE_KEY'),
+                                 file(credentialsId: 'frontend-private-key', variable: 'FRONTEND_KEY')]) {
+                    script {
+                        // Secure way to use ssh-agent for both bastion and EC2 private keys
+                        sh """
+                            # Step 1: Use SSH agent to add bastion private key
+                            eval \$(ssh-agent -s)
+                            ssh-add \${BASTION_PRIVATE_KEY}
+        
+                            # Step 2: Copy the build files to the Bastion host
+                            scp -o StrictHostKeyChecking=no -i \${BASTION_PRIVATE_KEY} -r ./frontend/dist/ \${BASTION_USER}@\${BASTION_HOST}:/home/ec2-user/.frontend-pipeline/
+        
+                            # Step 3: Copy the files from Bastion to the EC2 instance
+                            ssh -o StrictHostKeyChecking=no -i \${BASTION_PRIVATE_KEY} \${BASTION_USER}@\${BASTION_HOST} "
+                                scp -o StrictHostKeyChecking=no -i \${FRONTEND_KEY} /home/ec2-user/.frontend-pipeline/ \${AWS_FRONTEND}:/home/ec2-user/.frontend-pipeline/
+                            "
+                        """
+                    }
+                }
+            }
+        }
+
     }
 
     post {
