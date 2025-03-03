@@ -82,7 +82,7 @@ pipeline {
                                 # SCP the frontend dist folder to the Bastion Host
                                 scp -o StrictHostKeyChecking=no -i \$BASTION_PRIVATE_KEY -r ./frontend/dist/ ${BASTION_USER}@${BASTION_HOST}:/home/ec2-user/.frontend-pipeline/ &&
                                 # SSH from Bastion to EC2 and deploy the frontend
-                                ssh -o StrictHostKeyChecking=no -i ${FRONTEND_KEY} ec2-user@${AWS_FRONTEND} "echo 'SCP successful, starting deployment on EC2'"'
+                                ssh -o StrictHostKeyChecking=no -i ${FRONTEND_KEY} ${AWS_FRONTEND} "echo 'SCP successful, starting deployment on EC2'"'
                         """
                     }
                 }
