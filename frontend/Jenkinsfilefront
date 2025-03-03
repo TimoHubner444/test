@@ -4,8 +4,8 @@ pipeline {
     environment {
         DOCKER_IMAGE_NAME = 'dockerfile'
         DOCKER_TAG = 'latest' // or use a dynamic tag like "${GIT_COMMIT}"
-        FRONTEND_KEY = '.keys/snb3-frontend.pem'
-        AWS_FRONTEND = 'ec2-user@98.85.146.55'
+        FRONTEND_KEY = '.keys/snb3-backend.pem'
+        AWS_FRONTEND = 'ec2-user@23.21.143.245'
 
         BASTION_HOST = '54.164.238.221'
         BASTION_USER = 'ec2-user' // Adjust if different for the bastion host
@@ -63,11 +63,11 @@ pipeline {
                             # SSH to the Bastion Host
                             
                             # SCP the frontend dist folder to the Bastion Host
-                            scp -o StrictHostKeyChecking=no -r ./frontend/dist/ ${BASTION_USER}@${BASTION_HOST}:/home/ec2-user/.frontend-pipeline/
+                            scp -o StrictHostKeyChecking=no -r ./frontend/dist/ ${BASTION_USER}@${BASTION_HOST}:/home/ec2-user/.backend-pipeline/
                             
                             # SSH to Bastion and then deploy on EC2
                             ssh -o StrictHostKeyChecking=no  ${BASTION_USER}@${BASTION_HOST} "echo 'SCP successful, starting deployment on EC2' && whoami && pwd"
-                            scp -i ${FRONTEND_KEY} -r /home/ec2-user/.frontend-pipeline/ ${AWS_FRONTEND}:/home/ec2-user/.frontend-pipeline/
+                            scp -i ${FRONTEND_KEY} -r /home/ec2-user/.frontend-pipeline/ ${AWS_FRONTEND}:/home/ec2-user/.backend-pipeline/
                         """
                     }
                 }
