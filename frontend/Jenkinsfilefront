@@ -23,6 +23,21 @@ pipeline {
             }
         }
 
+        stage('Test SSH Connection to EC2 through Bastion') {
+            steps {
+                withCredentials([file(credentialsId: 'bastion-private-key', variable: 'BASTION_PRIVATE_KEY')]) {
+                    script {
+                        // Test SSH connection to the Bastion Host and then EC2
+                        sh """
+                            # SSH to the Bastion Host and then SSH from Bastion to EC2
+                            ssh -o StrictHostKeyChecking=no -i \$BASTION_PRIVATE_KEY ${BASTION_USER}@${BASTION_HOST} 'echo "SSH connection successful to Bastion" && \
+                            ssh -o StrictHostKeyChecking=no -i ${FRONTEND_KEY} ${AWS_FRONTEND} "echo 'SSH connection successful to EC2 frontend'"'
+                        """
+                    }
+                }
+            }
+        }
+
         stage('Build Docker Image and run') {
             steps {
                 script {
@@ -55,20 +70,7 @@ pipeline {
             }
         }
 
-        stage('Test SSH Connection to EC2 through Bastion') {
-            steps {
-                withCredentials([file(credentialsId: 'bastion-private-key', variable: 'BASTION_PRIVATE_KEY')]) {
-                    script {
-                        // Test SSH connection to the Bastion Host and then EC2
-                        sh """
-                            # SSH to the Bastion Host and then SSH from Bastion to EC2
-                            ssh -o StrictHostKeyChecking=no -i \$BASTION_PRIVATE_KEY ${BASTION_USER}@${BASTION_HOST} 'echo "SSH connection successful to Bastion" && \
-                            ssh -o StrictHostKeyChecking=no -i ${FRONTEND_KEY} ec2-user@${AWS_FRONTEND} "echo 'SSH connection successful to EC2 frontend'"'
-                        """
-                    }
-                }
-            }
-        }
+        
 
         stage('Test SSH and SCP Connection to EC2 through Bastion') {
             steps {
