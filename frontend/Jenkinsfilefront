@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE_NAME = 'dockerfile'
         DOCKER_TAG = 'latest' // or use a dynamic tag like "${GIT_COMMIT}"
-        FRONTEND_KEY = credentials('frontend-key')
+        FRONTEND_KEY = '/home/ec2-user/.keys/snb3-backend.pem '
         AWS_FRONTEND = 'ec2-user@98.85.146.55'
         
         BASTION_HOST = '54.164.238.221'
@@ -25,8 +25,7 @@ pipeline {
 
        stage('Test SSH Connection to EC2 through Bastion') {
             steps {
-                withCredentials([file(credentialsId: 'frontend-key', variable: 'FRONTEND_KEY'),
-                                 file(credentialsId: 'bastion-private-key', variable: 'BASTION_PRIVATE_KEY')]) {
+                withCredentials([file(credentialsId: 'bastion-private-key', variable: 'BASTION_PRIVATE_KEY')]) {
                     script {
                         // Test SSH connection to the Bastion Host and then EC2
                         sh """
