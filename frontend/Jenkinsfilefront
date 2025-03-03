@@ -23,20 +23,23 @@ pipeline {
             }
         }
 
-        stage('Test SSH Connection to Bastion') {
+       stage('Test SSH Connection to EC2 through Bastion') {
             steps {
-                withCredentials([file(credentialsId: 'frontend-key', variable: 'FRONTEND_KEY')]) {
+                withCredentials([file(credentialsId: 'frontend-key', variable: 'FRONTEND_KEY'),
+                                 file(credentialsId: 'bastion-private-key', variable: 'BASTION_PRIVATE_KEY')]) {
                     script {
-                        // Test SSH connection to the Bastion Host
+                        // Test SSH connection to the Bastion Host and then EC2
                         sh """
-                            # Test SSH connection to the Bastion Host
-                            ssh -o StrictHostKeyChecking=no -i ${FRONTEND_KEY} ec2-user@98.85.146.55 'echo "SSH connection successful to frontend"'
-
+                            # First, SSH to the Bastion Host
+                            ssh -o StrictHostKeyChecking=no -i ${BASTION_PRIVATE_KEY} ${BASTION_USER}@${BASTION_HOST} 'echo "SSH connection successful to Bastion" && 
+                            # Then SSH from Bastion to EC2
+                            ssh -o StrictHostKeyChecking=no -i ${FRONTEND_KEY} ec2-user@98.85.146.55 "echo 'SSH connection successful to EC2 frontend'"'
                         """
                     }
                 }
             }
         }
+
 
         stage('Build Docker Image and run') {
             steps {
@@ -70,20 +73,7 @@ pipeline {
             }
         }
 
-        // Renamed this stage to avoid duplicates
-        stage('Test SSH Connection to Bastion Again') {
-            steps {
-                withCredentials([file(credentialsId: 'bastion-private-key', variable: 'BASTION_PRIVATE_KEY')]) {
-                    script {
-                        // Test SSH connection to the Bastion Host
-                        sh """
-                            # Test SSH connection to the Bastion Host
-                            ssh -o StrictHostKeyChecking=no -i \${BASTION_PRIVATE_KEY} \${BASTION_USER}@\${BASTION_HOST} 'echo "SSH connection successful to Bastion"'
-                        """
-                    }
-                }
-            }
-        }
+     
 
         stage('Deploy to Bastion and then EC2') {
             steps {
