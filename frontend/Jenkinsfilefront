@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE_NAME = 'dockerfile'
         DOCKER_TAG = 'latest' // or use a dynamic tag like "${GIT_COMMIT}"
-        FRONTEND_KEY = '/home/ec2-user/.keys/snb3-frontend.pem'
+        FRONTEND_KEY = credentials('frontend-key')
         AWS_FRONTEND = 'ec2-user@98.85.146.55'
         
         BASTION_HOST = '54.164.238.221'
@@ -78,29 +78,33 @@ pipeline {
 
        stage('Deploy to Bastion and then EC2') {
             steps {
-                withCredentials([file(credentialsId: 'bastion-private-key', variable: 'BASTION_PRIVATE_KEY'),
-                                 file(credentialsId: 'frontend-key', variable: 'FRONTEND_KEY')]) {
+                withCredentials([
+                    file(credentialsId: 'bastion-private-key', variable: 'BASTION_PRIVATE_KEY'),
+                    file(credentialsId: 'frontend-key', variable: 'FRONTEND_KEY')
+                ]) {
                     script {
-                        // Secure way to use ssh-agent for both bastion and EC2 private keys
+                        // Start the SSH agent and add the bastion key
+                        sh '''
+                            eval $(ssh-agent -s)
+                            ssh-add ${BASTION_PRIVATE_KEY}
+                        '''
+                        
+                        // SCP files from Jenkins to Bastion
                         sh """
-                            # Step 1: Use SSH agent to add bastion private key
-                            eval \$(ssh-agent -s)
-                            ssh-add \${BASTION_PRIVATE_KEY}
-            
-                            # Step 2: Copy the build files to the Bastion host
-                            scp -o StrictHostKeyChecking=no -i \${BASTION_PRIVATE_KEY} -r ./frontend/dist/ \${BASTION_USER}@\${BASTION_HOST}:/home/ec2-user/.frontend-pipeline/
-            
-                            # Step 3: SSH into the Bastion and print the working directory before SCP to EC2 instance
-                            ssh -o StrictHostKeyChecking=no -i \${BASTION_PRIVATE_KEY} \${BASTION_USER}@\${BASTION_HOST} "
-                               
-                                # Now SCP the files from Bastion to the EC2 instance
-                            scp -o StrictHostKeyChecking=no -i ${FRONTEND_KEY} -r /home/ec2-user/.frontend-pipeline/ \${AWS_FRONTEND}:/home/ec2-user/.frontend-pipeline/
+                            scp -o StrictHostKeyChecking=no -i ${BASTION_PRIVATE_KEY} -r ./frontend/dist/ ${BASTION_USER}@${BASTION_HOST}:/home/ec2-user/.frontend-pipeline/
+                        """
+                        
+                        // Now SSH into the Bastion, and SCP the files to the EC2 instance
+                        sh """
+                            ssh -o StrictHostKeyChecking=no -i ${BASTION_PRIVATE_KEY} ${BASTION_USER}@${BASTION_HOST} "
+                                scp -o StrictHostKeyChecking=no -i ${FRONTEND_KEY} -r /home/ec2-user/.frontend-pipeline/ ${AWS_FRONTEND}:/home/ec2-user/.frontend-pipeline/
                             "
                         """
                     }
                 }
             }
         }
+
 
 
     }
