@@ -66,7 +66,7 @@ pipeline {
                             scp -o StrictHostKeyChecking=no -r ./frontend/dist/ ${BASTION_USER}@${BASTION_HOST}:/home/ec2-user/.frontend-pipeline/
                             
                             # SSH to Bastion and then deploy on EC2
-                            ssh -o StrictHostKeyChecking=no  ${BASTION_USER}@${BASTION_HOST} "echo 'SCP successful, starting deployment on EC2'"
+                            ssh -o StrictHostKeyChecking=no  ${BASTION_USER}@${BASTION_HOST} "echo 'SCP successful, starting deployment on EC2' && whoami && pwd"
                             scp -i ${FRONTEND_KEY} -r /home/ec2-user/.frontend-pipeline/ ${AWS_FRONTEND}:/home/ec2-user/.frontend-pipeline/
                         """
                     }
