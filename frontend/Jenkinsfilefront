@@ -23,7 +23,19 @@ pipeline {
             }
         }
 
-         
+         stage('Test SSH Connection to Bastion') {
+            steps {
+                withCredentials([file(credentialsId: 'frontend-key', variable: 'FRONTEND_KEY')]) {
+                    script {
+                        // Test SSH connection to the Bastion Host
+                        sh """
+                            # Test SSH connection to the Bastion Host
+                            ssh -o StrictHostKeyChecking=no -i \${AWS_FRONTEND} 'echo "SSH connection successful to frontend"'
+                        """
+                    }
+                }
+            }
+        }
 
        
 
