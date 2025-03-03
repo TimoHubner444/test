@@ -8,6 +8,9 @@ pipeline {
         EC2_USER = 'ec2-user'  // Default user for Amazon Linux or adjust based on your AMI (e.g., ubuntu for Ubuntu AMIs)
         EC2_HOST = '54.163.20.34'
         REMOTE_DIR = '/home/ec2-user/testmap'  // The directory on the EC2 instance to deploy to
+        BASTION_HOST = '54.164.238.221'
+        BASTION_USER = 'ec2-user'  // Adjust if different for the bastion host
+        BASTION_PRIVATE_KEY = credentials('bastion-private-key')  // Store the bastion private key in Jenkins Credentials Manager
     }
 
     tools {
@@ -21,7 +24,19 @@ pipeline {
             }
         }
 
-        
+         stage('Test SSH Connection to Bastion') {
+                steps {
+                    withCredentials([file(credentialsId: 'bastion-private-key', variable: 'BASTION_PRIVATE_KEY')]) {
+                        script {
+                            // Test SSH connection to the Bastion Host
+                            sh """
+                                # Test SSH connection to the Bastion Host
+                                ssh -o StrictHostKeyChecking=no -i \${BASTION_PRIVATE_KEY} \${BASTION_USER}@\${BASTION_HOST} 'echo "SSH connection successful to Bastion"'
+                            """
+                        }
+                    }
+                }
+            }
 
        
 
@@ -59,6 +74,8 @@ pipeline {
                 }
             }
         }
+       
+
 
         stage('Deploy to EC2') {  // Added a new stage for deployment
             steps {
