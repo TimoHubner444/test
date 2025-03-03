@@ -9,7 +9,7 @@ pipeline {
 
         BASTION_HOST = '54.164.238.221'
         BASTION_USER = 'ec2-user' // Adjust if different for the bastion host
-       
+     }  
 
     tools {
         nodejs "test-node"
