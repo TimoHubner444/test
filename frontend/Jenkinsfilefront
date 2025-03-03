@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE_NAME = 'dockerfile'
         DOCKER_TAG = 'latest' // or use a dynamic tag like "${GIT_COMMIT}"
-        FRONTEND_KEY = '.keys/snb3-frontend.pem'
+        FRONTEND_KEY = '/home/ec2-user/.keys/snb3-frontend.pem '
         AWS_FRONTEND = 'ec2-user@98.85.146.55'
 
         BASTION_HOST = '54.164.238.221'
